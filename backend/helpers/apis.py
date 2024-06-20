@@ -1,6 +1,8 @@
 import requests
 
-from backend.helpers.validate_schema import validate_blocks_data, validate_transaction_data
+from helpers.validate_schema import validate_blocks_data_api, validate_transaction_data_api
+
+# TODO: turn on validation for the block data and transaction data
 
 url = "https://free-rpc.nethermind.io/mainnet-juno"
 
@@ -39,7 +41,7 @@ def fetch_block_data_api(block_number):
         raise ValueError("Invalid response from RPC server")
     
     block_data = response['result']
-    validate_blocks_data(block_data)
+    # validate_blocks_data_api(block_data)
 
     return block_data
 
@@ -59,6 +61,6 @@ def fetch_transaction_data_api(transaction_hash):
         raise ValueError("Invalid response from RPC server")
     
     transaction_data = response['result']
-    validate_transaction_data(transaction_data)  # Validate the structure of transaction_data
+    # validate_transaction_data_api(transaction_data)  # Validate the structure of transaction_data
     
     return transaction_data

@@ -1,8 +1,7 @@
 import os
 from pymongo import MongoClient
 
-from backend.helpers.getEnv import getDatabaseName, getMongoUri
-
+from helpers.getEnv import getDatabaseName, getMongoUri
 
 def connectMongoDB():
   MONGO_URI = getMongoUri()
@@ -33,3 +32,17 @@ def insert_transaction(db, transaction_data):
         db.client = MongoClient(getMongoUri())
     transaction_hash = transaction_data['_id']
     db.transactions.update_one({"_id": transaction_hash}, {"$set": transaction_data}, upsert=True)
+
+def fetch_block(db, block_number):
+    if not db.client:
+        db.client = MongoClient(getMongoUri())
+
+    block_data = db.blocks.find_one({"_id": block_number})
+    return block_data
+        
+def fetch_transaction(db, transaction_hash):
+    if not db.client:
+        db.client = MongoClient(getMongoUri())
+
+    transaction_data = db.transactions.find_one({"_id": transaction_hash})
+    return transaction_data

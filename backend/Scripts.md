@@ -8,7 +8,13 @@
 
 # MongoDb : Cluster -> Database -> Collection -> Document
 
-# To run redis &celery :
+# To run redis & celery & flower:
 
 `redis-server`
-`celery -A tasks worker --loglevel=info`
+`celery -A app.celery worker --loglevel=info`
+`celery -A app.celery beat --loglevel=info`
+`flower -A tasks --port=5555`
+
+# To shut down the redis server:
+
+`redis-cli shutdown`
