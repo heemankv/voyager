@@ -45,9 +45,13 @@ def fetch_block_data_job(block_number=None):
     # Insert block data into MongoDB
     insert_block(db, block_data)
 
-    # Trigger task to process transactions
-    for transaction_hash in block_data.get('transactions', []):
-        process_transaction_job.delay(transaction_hash)
+    transactions_to_process = block_data.get('transactions', [])
+
+   # Trigger task to process transactions with delay
+    delay_seconds = getJobDelaySeconds()
+    for index, transaction_hash in enumerate(transactions_to_process):
+        process_transaction_job.apply_async((transaction_hash,), countdown=index * delay_seconds)
+
       
     return "Block data fetched and transactions processed successfully"
 

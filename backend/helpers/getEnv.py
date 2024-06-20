@@ -2,6 +2,13 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+
+def getJobDelaySeconds():
+    delay_seconds = os.getenv('JOB_DELAY_SECONDS')
+    if delay_seconds is None:
+        raise ValueError("Please set JOB_DELAY_SECONDS environment variable")
+    return int(delay_seconds)
+
 def getCeleryBrokerUrl():
     url =  os.getenv('CELERY_BROKER_URL')
     if url is None:
