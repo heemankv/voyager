@@ -22,6 +22,7 @@ def insert_block(db, block_data):
     if not db.client:
         db.client = MongoClient(getMongoUri())
     block_id = block_data['block_number']
+    # block_data['transactions_length'] = len(block_data['transactions'])
     db.blocks.update_one({"_id": block_id}, {"$set": block_data}, upsert=True)
 
 # Function to insert a transaction into MongoDB
@@ -68,6 +69,7 @@ def fetch_block(db, block_number):
         db.client = MongoClient(getMongoUri())
 
     block_data = db.blocks.find_one({"_id": block_number})
+    block_data['transactions_length'] = len(block_data['transactions'])
     return block_data
         
 def fetch_transaction(db, transaction_hash):

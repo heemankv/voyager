@@ -114,6 +114,63 @@ def fetch_block_data(block_number):
             "data": txn_data    
     })
 
+
+@app.route('/api/transactions/<int:index>', methods=['GET'])
+def get_transactions(index):
+    # TODO: Reevaluate this logic
+    # User asks for xth - xth + default_list transactions
+    # get blocks list from latest to earlist
+    # each block has list of txns as well as length of all txns
+    # current_length_reached = 0
+    # current_block = latest_block
+    # loop
+    # get block data { only the block number and transactions_length }
+    # if current_length_reached + transactions_length < x
+    # current_length += transactions_length
+    # else if current_length_reached + transactions_length (length) == x (index)
+    # this eg means : I have 20 txns and i am asking for 21st txn
+    # so return default_list many txns from next block
+    # else (when current_length_reached + transactions_length > x):
+    # return default_list many txns from current block starting from x - current_length_reached index to default_list of this block
+    x = index
+    default_list = 10
+    blocks = []
+    current_length_reached = 0
+    
+    current_block = fetch_latest_ingested_block(db)
+    while True:
+        block_data = fetch_block(db, current_block)
+        blocks.append(block_data)
+        current_length_reached += block_data['transactions_length']
+        if current_length_reached < x:
+            current_block -= 1
+        elif current_length_reached == x:
+            break
+        else:
+            break
+
+    # get the transactions from the current block
+    current_block_data = blocks[-1]
+    transactions = current_block_data['transactions']
+
+    # x = 0
+    # current_length_reached = 217
+    # default_list = 10
+    # start index -> 0, got -217
+    # end index -> 10, got -207
+
+    start_index = min(abs(x - current_length_reached), x)
+    end_index = min(abs(x - current_length_reached) + default_list, x + default_list)
+
+    transactions = transactions[start_index:end_index]
+    return jsonify({
+        "message": "Transactions fetched successfully",
+        "block_number": current_block_data["_id"],
+        "start_index": start_index,
+        "end_index": end_index,
+        "data": transactions,
+    })
+
 # Fetch transaction data for a given transaction hash
 @app.route('/fetch-transaction-data/<string:transaction_hash>')
 def fetch_transaction_data(transaction_hash):
