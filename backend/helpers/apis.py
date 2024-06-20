@@ -16,8 +16,11 @@ def fetch_latest_block_number_api():
     headers = {"Content-Type": "application/json"}
     response = requests.request("POST", url, json=payload, headers=headers)
     response = response.json()
+    print(response)
     if 'error' in response:
         raise ValueError(response['error']['message'])
+    elif 'message' in response:
+        raise ConnectionRefusedError(response['message'])
     elif 'result' not in response:
         raise ValueError("Invalid response from RPC server")
     elif type(response['result']) != int:
@@ -37,6 +40,8 @@ def fetch_block_data_api(block_number):
     response = response.json()
     if 'error' in response:
         raise ValueError(response['error']['message'])
+    elif 'message' in response:
+        raise ConnectionRefusedError(response['message'])
     elif 'result' not in response:
         raise ValueError("Invalid response from RPC server")
     
@@ -57,6 +62,8 @@ def fetch_transaction_data_api(transaction_hash):
     response = response.json()
     if 'error' in response:
         raise ValueError(response['error']['message'])
+    elif 'message' in response:
+        raise ConnectionRefusedError(response['message'])
     elif 'result' not in response:
         raise ValueError("Invalid response from RPC server")
     

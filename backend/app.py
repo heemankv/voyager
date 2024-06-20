@@ -38,6 +38,10 @@ def fetch_block_data_job(block_number=None):
     # After getting the block number, fetch block data
     block_data = fetch_block_data_api(block_number)
 
+    # Check if the block in not already added to the database
+    if fetch_block(db, block_number) is not None:
+        return "Block already processed"
+
     # Insert block data into MongoDB
     insert_block(db, block_data)
 
