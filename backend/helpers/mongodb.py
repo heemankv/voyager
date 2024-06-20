@@ -17,13 +17,19 @@ def connectMongoDB():
   return client, db
 
 
-
 # Function to insert a block into MongoDB
 def insert_block(db, block_data):
+    # validate that the connection is live
+    if not db.client:
+        db.client = MongoClient(getMongoUri())
     block_id = block_data['block_number']
     db.blocks.update_one({"_id": block_id}, {"$set": block_data}, upsert=True)
 
 # Function to insert a transaction into MongoDB
+# // define this to be an ÷async function]
 def insert_transaction(db, transaction_data):
+    # validate that the connection is live
+    if not db.client:
+        db.client = MongoClient(getMongoUri())
     transaction_hash = transaction_data['_id']
     db.transactions.update_one({"_id": transaction_hash}, {"$set": transaction_data}, upsert=True)
