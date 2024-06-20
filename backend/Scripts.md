@@ -1,6 +1,7 @@
 # To run the env,
 
 `source bin/activate`
+`source deactivate`
 
 # To dump all the requirements to a file,
 
