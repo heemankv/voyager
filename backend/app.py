@@ -115,7 +115,7 @@ def fetch_block_data(block_number):
     })
 
 
-@app.route('/api/transactions/<int:index>', methods=['GET'])
+@app.route('/api/transactions-list/<int:index>', methods=['GET'])
 def get_transactions(index):
     # TODO: Reevaluate this logic
     # User asks for xth - xth + default_list transactions
@@ -172,7 +172,7 @@ def get_transactions(index):
     })
 
 # Fetch transaction data for a given transaction hash
-@app.route('/fetch-transaction-data/<string:transaction_hash>')
+@app.route('/api/fetch-transaction-data/<string:transaction_hash>', methods=['GET'])
 def fetch_transaction_data(transaction_hash):
     txn_data = fetch_transaction(db, transaction_hash)
     if txn_data is None:
