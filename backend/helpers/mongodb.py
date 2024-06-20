@@ -1,10 +1,12 @@
 import os
 from pymongo import MongoClient
 
+from backend.helpers.getEnv import getDatabaseName, getMongoUri
+
 
 def connectMongoDB():
-  MONGO_URI = os.getenv('MONGO_URI')
-  DATABASE_NAME = os.getenv('DATABASE_NAME')
+  MONGO_URI = getMongoUri()
+  DATABASE_NAME = getDatabaseName()
   if not MONGO_URI or not DATABASE_NAME:
       raise ValueError("Please set MONGO_URI and DATABASE_NAME environment variables")
 
