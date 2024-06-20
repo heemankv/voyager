@@ -1,22 +1,21 @@
 import requests
 
 from helpers.validate_schema import validate_blocks_data_api, validate_transaction_data_api
-
+from helpers.getEnv import getBlastId
 # TODO: turn on validation for the block data and transaction data
 
-url = "https://free-rpc.nethermind.io/mainnet-juno"
+blast_Id = getBlastId()
+url = f"https://starknet-mainnet.blastapi.io/{blast_Id}/rpc/v0_7"
 
 def fetch_latest_block_number_api():
     payload = {
         "jsonrpc": "2.0",
-        "method": "starknet_blockNumber",
-        "params": [],
-        "id": 1
+        "id": 0,
+        "method": "starknet_blockNumber"
     }
     headers = {"Content-Type": "application/json"}
     response = requests.request("POST", url, json=payload, headers=headers)
     response = response.json()
-    print(response)
     if 'error' in response:
         raise ValueError(response['error']['message'])
     elif 'message' in response:
@@ -33,7 +32,7 @@ def fetch_block_data_api(block_number):
         "jsonrpc": "2.0",
         "method": "starknet_getBlockWithTxs",
         "params": [{"block_number": block_number}],
-        "id": 1
+        "id": 0
     }
     headers = {"Content-Type": "application/json"}
     response = requests.request("POST", url, json=payload, headers=headers)
@@ -55,7 +54,7 @@ def fetch_transaction_data_api(transaction_hash):
         "jsonrpc": "2.0",
         "method": "starknet_getTransactionReceipt",
         "params": [transaction_hash],
-        "id": 1
+        "id": 0
     }
     headers = {"Content-Type": "application/json"}
     response = requests.request("POST", url, json=payload, headers=headers)

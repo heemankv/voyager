@@ -14,6 +14,7 @@
 `celery -A app.celery worker --loglevel=info`
 `celery -A app.celery beat --loglevel=info`
 `flower -A tasks --port=5555`
+`python3 app.py`
 
 # To shut down the redis server:
 

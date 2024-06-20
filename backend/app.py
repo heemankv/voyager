@@ -3,7 +3,7 @@ from flask import Flask, jsonify
 from celery import Celery
 from pymongo import MongoClient
 from helpers.apis import *
-from helpers.getEnv import getCeleryBrokerUrl, getCeleryResultBackend
+from helpers.getEnv import getCeleryBrokerUrl, getCeleryResultBackend, getJobDelaySeconds
 from helpers.mongodb import connectMongoDB, fetch_block, fetch_transaction, insert_block, insert_transaction
 import os
 from helpers.mongodb import connectMongoDB
@@ -50,7 +50,8 @@ def fetch_block_data_job(block_number=None):
    # Trigger task to process transactions with delay
     delay_seconds = getJobDelaySeconds()
     for index, transaction_hash in enumerate(transactions_to_process):
-        process_transaction_job.apply_async((transaction_hash,), countdown=index * delay_seconds)
+        print(f"Processing transaction {transaction_hash} in {index * delay_seconds} seconds")
+        # process_transaction_job.apply_async((transaction_hash,), countdown=index * delay_seconds)
 
       
     return "Block data fetched and transactions processed successfully"
@@ -62,6 +63,10 @@ def process_transaction_job(transaction_hash):
     # Add this call as a try catch, to handle the case when the transaction is not found or updating to monogdb was not successful
     # if transaction is not found re add this task to the end of the queue
     try:
+        # Check if the block in not already added to the database
+        if fetch_transaction(db, transaction_hash) is not None:
+            return "Transaction already processed"
+
         # Fetch transaction data
         transaction_data = fetch_transaction_data_api(transaction_hash)
         # Insert transaction data into MongoDB
@@ -74,7 +79,8 @@ def process_transaction_job(transaction_hash):
 # Routes
 @app.route('/')
 def home():
-    return jsonify({"message": "Hello, World!"})
+    block_id = fetch_latest_block_number_api()
+    return jsonify({"message": block_id})
 
 # Fetch block data for a given block number
 @app.route('/fetch-block-data/<int:block_number>')

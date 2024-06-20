@@ -2,6 +2,11 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+def getBlastId():
+    blast_id = os.getenv('BLAST_ID')
+    if blast_id is None:
+        raise ValueError("Please set BLAST_ID environment variable")
+    return blast_id
 
 def getJobDelaySeconds():
     delay_seconds = os.getenv('JOB_DELAY_SECONDS')
