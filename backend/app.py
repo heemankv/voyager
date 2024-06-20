@@ -4,7 +4,7 @@ from celery import Celery
 from pymongo import MongoClient
 from helpers.apis import *
 from helpers.getEnv import getCeleryBrokerUrl, getCeleryResultBackend, getJobDelaySeconds
-from helpers.mongodb import connectMongoDB, fetch_block, fetch_transaction, insert_block, insert_transaction
+from helpers.mongodb import connectMongoDB, fetch_block, fetch_transaction, insert_block, insert_transaction, update_latest_ingestion_block, fetch_ingestion_block
 import os
 from helpers.mongodb import connectMongoDB
 
@@ -33,7 +33,17 @@ def fetch_block_data_job(block_number=None):
     # if parameter block_number is provided, fetch block data for that block number
     # else fetch block data for the latest block number
     if block_number is None:
-        block_number = fetch_latest_block_number_api()
+        latest_block_number = fetch_latest_block_number_api()
+
+    ingested_block = fetch_ingestion_block(db)
+    if ingested_block is None:
+        block_number = latest_block_number - 10
+    elif(ingested_block < latest_block_number):
+        block_number = ingested_block + 1
+    elif(ingested_block == latest_block_number):
+        return "No new block to process"
+    else:
+        return "Impossible State: Ingestion block is ahead of latest block"
 
     # After getting the block number, fetch block data
     block_data = fetch_block_data_api(block_number)
@@ -45,14 +55,19 @@ def fetch_block_data_job(block_number=None):
     # Insert block data into MongoDB
     insert_block(db, block_data)
 
+    # Assumption : If block is added to db it is ingested, so update the latest ingestion block
+    # TODO: better to ingest the block only when the last transaction is processed, should modify this logic later
+
     transactions_to_process = block_data.get('transactions', [])
 
    # Trigger task to process transactions with delay
     delay_seconds = getJobDelaySeconds()
-    for index, transaction_hash in enumerate(transactions_to_process):
-        print(f"Processing transaction {transaction_hash} in {index * delay_seconds} seconds")
-        # process_transaction_job.apply_async((transaction_hash,), countdown=index * delay_seconds)
+    for index, transaction in enumerate(transactions_to_process):
+        transaction_hash = transaction['transaction_hash']
+        print(f"Processing transaction {transaction_hash} in {(index+1) * delay_seconds} seconds")
+        process_transaction_job.apply_async((transaction_hash,), countdown=(index+1) * delay_seconds)
 
+    update_latest_ingestion_block(db, block_number)
       
     return "Block data fetched and transactions processed successfully"
 
@@ -80,6 +95,7 @@ def process_transaction_job(transaction_hash):
 @app.route('/')
 def home():
     block_id = fetch_latest_block_number_api()
+    # update_latest_ingestion_block(db, block_id - 11)
     return jsonify({"message": block_id})
 
 # Fetch block data for a given block number

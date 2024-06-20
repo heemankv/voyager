@@ -30,8 +30,29 @@ def insert_transaction(db, transaction_data):
     # validate that the connection is live
     if not db.client:
         db.client = MongoClient(getMongoUri())
-    transaction_hash = transaction_data['_id']
+    transaction_hash = transaction_data['transaction_hash']
     db.transactions.update_one({"_id": transaction_hash}, {"$set": transaction_data}, upsert=True)
+
+
+
+# ingested collection will only have one document with _id as "latest"
+# this document will have the latest block number that has been ingested
+# TODO: handle failure
+def fetch_ingestion_block(db):
+    if not db.client:
+        db.client = MongoClient(getMongoUri())
+
+    ingestion_block = db.ingestion.find_one({"_id": "latest"})
+    # return the block number
+    return ingestion_block.get("block_number", 0) if ingestion_block else None
+
+
+def update_latest_ingestion_block(db, block_number):
+    if not db.client:
+        db.client = MongoClient(getMongoUri())
+    
+    db.ingestion.update_one({"_id": "latest"}, {"$set": {"block_number": block_number}}, upsert=True)
+
 
 def fetch_block(db, block_number):
     if not db.client:
