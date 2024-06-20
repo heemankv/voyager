@@ -13,3 +13,7 @@ There are few calls here :
    automatically delete the block data and transactions which are older than 10 blocks
 3. Get the current block number & then subtract it by 11 to get teh block number for which we need to delete the data, first fetch from the database all the transactions that this block is associalted with and then trigger delete trnasaction job for each transaction and then delete the block data
 4. Delete the transaction data from the database
+
+# Note: Take care of this !, basically multiple MongoDb instances
+
+![alt text](image.png)

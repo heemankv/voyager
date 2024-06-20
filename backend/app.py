@@ -41,7 +41,7 @@ def fetch_block_data_job(block_number=None):
     elif(ingested_block < latest_block_number):
         block_number = ingested_block + 1
     elif(ingested_block == latest_block_number):
-        return "No new block to process"
+        return f"No new block to process, latest block number is {latest_block_number}"
     else:
         return "Impossible State: Ingestion block is ahead of latest block"
 
@@ -50,7 +50,7 @@ def fetch_block_data_job(block_number=None):
 
     # Check if the block in not already added to the database
     if fetch_block(db, block_number) is not None:
-        return "Block already processed"
+        return f"Block {block_number} already processed"
 
     # Insert block data into MongoDB
     insert_block(db, block_data)
@@ -64,29 +64,29 @@ def fetch_block_data_job(block_number=None):
     delay_seconds = getJobDelaySeconds()
     for index, transaction in enumerate(transactions_to_process):
         transaction_hash = transaction['transaction_hash']
-        print(f"Processing transaction {transaction_hash} in {(index+1) * delay_seconds} seconds")
-        process_transaction_job.apply_async((transaction_hash,), countdown=(index+1) * delay_seconds)
+        print(f"Processing transaction {block_number}:{transaction_hash} in {(index+1) * delay_seconds} seconds")
+        process_transaction_job.apply_async((transaction_hash,block_number,), countdown=(index+1) * delay_seconds)
 
     update_latest_ingestion_block(db, block_number)
       
-    return "Block data fetched and transactions processed successfully"
+    return f"Block data fetched for block number {block_number}"
 
 # This is a event based task that processes individual transaction data, when asked by the fetch_block_data task
 # Task to process individual transaction data
 @celery.task
-def process_transaction_job(transaction_hash):
+def process_transaction_job(transaction_hash, block_number):
     # Add this call as a try catch, to handle the case when the transaction is not found or updating to monogdb was not successful
     # if transaction is not found re add this task to the end of the queue
     try:
         # Check if the block in not already added to the database
         if fetch_transaction(db, transaction_hash) is not None:
-            return "Transaction already processed"
+            return f"Transaction {block_number}:{transaction_hash} already processed"
 
         # Fetch transaction data
         transaction_data = fetch_transaction_data_api(transaction_hash)
         # Insert transaction data into MongoDB
         insert_transaction(db, transaction_data)
-        return "Transaction processed successfully"
+        return f"Transaction {block_number}:{transaction_hash} processed successfully"
     except ValueError as e:
         process_transaction_job.retry(countdown=60, exc=e)
         return
