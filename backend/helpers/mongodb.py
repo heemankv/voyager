@@ -47,6 +47,15 @@ def fetch_ingestion_block(db):
     return ingestion_block.get("block_number", 0) if ingestion_block else None
 
 
+def fetch_latest_ingested_block(db):
+    if not db.client:
+        db.client = MongoClient(getMongoUri())
+    
+    # get the most recently added block
+    latest_block = db.blocks.find_one(sort=[("_id", -1)])
+    return latest_block.get("_id", 0) if latest_block else None
+
+
 def update_latest_ingestion_block(db, block_number):
     if not db.client:
         db.client = MongoClient(getMongoUri())

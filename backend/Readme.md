@@ -16,4 +16,7 @@ There are few calls here :
 
 # Note: Take care of this !, basically multiple MongoDb instances
 
+# TODO: there's a possibility that we might ingest data of x+1 before x and then if system revisites to ingest, we might have to delete the data of x+1 and then ingest x and then x+1, so we need to take care of this
+
+
 ![alt text](image.png)

@@ -4,7 +4,7 @@ from celery import Celery
 from pymongo import MongoClient
 from helpers.apis import *
 from helpers.getEnv import getCeleryBrokerUrl, getCeleryResultBackend, getJobDelaySeconds
-from helpers.mongodb import connectMongoDB, fetch_block, fetch_transaction, insert_block, insert_transaction, update_latest_ingestion_block, fetch_ingestion_block
+from helpers.mongodb import connectMongoDB, fetch_block, fetch_transaction, insert_block, insert_transaction, update_latest_ingestion_block, fetch_ingestion_block, fetch_latest_ingested_block
 import os
 from helpers.mongodb import connectMongoDB
 
@@ -32,53 +32,46 @@ client, db = connectMongoDB()
 def fetch_block_data_job(block_number=None):
     # if parameter block_number is provided, fetch block data for that block number
     # else fetch block data for the latest block number
-    if block_number is None:
-        latest_block_number = fetch_latest_block_number_api()
+ 
+    if block_number is not None:
+        ingest_for_block_number = block_number
+    else: 
+        latest_available_block_number = fetch_latest_block_number_api()
+        latest_ingested_block_number = fetch_latest_ingested_block(db)
 
-    ingested_block = fetch_ingestion_block(db)
-    if ingested_block is None:
-        block_number = latest_block_number - 10
-    elif(ingested_block < latest_block_number):
-        block_number = ingested_block + 1
-    elif(ingested_block == latest_block_number):
-        return f"No new block to process, latest block number is {latest_block_number}"
-    else:
-        return "Impossible State: Ingestion block is ahead of latest block"
+        # if the latest block number is already ingested, return
+        if latest_available_block_number == latest_ingested_block_number:
+            return f"Block data already fetched for block number {latest_available_block_number}"
+        
+        elif latest_ingested_block_number is None:
+            ingest_for_block_number = latest_available_block_number - 10
+        else:
+            ingest_for_block_number = latest_ingested_block_number + 1
 
-    # After getting the block number, fetch block data
-    block_data = fetch_block_data_api(block_number)
-
-    # Check if the block in not already added to the database
-    if fetch_block(db, block_number) is not None:
-        return f"Block {block_number} already processed"
-
-    # Insert block data into MongoDB
+    # fetch block data for the block number
+    block_data = fetch_block_data_api(ingest_for_block_number)
+    # insert block data into MongoDB
     insert_block(db, block_data)
-
-    # Assumption : If block is added to db it is ingested, so update the latest ingestion block
-    # TODO: better to ingest the block only when the last transaction is processed, should modify this logic later
-
-    transactions_to_process = block_data.get('transactions', [])
-
-   # Trigger task to process transactions with delay
+    print(f"Block data ingested for block number {ingest_for_block_number}")
+    # send for all the transactions to be processed  using process_block_based_transaction_job
+    # create a list of transaction hashes
+    transaction_hashes = [transaction['transaction_hash'] for transaction in block_data['transactions']]
     delay_seconds = getJobDelaySeconds()
-    for index, transaction in enumerate(transactions_to_process):
-        transaction_hash = transaction['transaction_hash']
-        print(f"Processing transaction {block_number}:{transaction_hash} in {(index+1) * delay_seconds} seconds")
-        process_transaction_job.apply_async((transaction_hash,block_number,), countdown=(index+1) * delay_seconds)
 
-    update_latest_ingestion_block(db, block_number)
+    print(f"Processing {len(transaction_hashes)} transactions for {block_number} in {delay_seconds} seconds")
+    # Calls for all the transactions to be processed together
+    process_block_based_transaction_job.apply_async((transaction_hashes, ingest_for_block_number,), countdown=delay_seconds)
       
-    return f"Block data fetched for block number {block_number}"
+    return f"Block data fetched for block number {ingest_for_block_number}"
 
-# This is a event based task that processes individual transaction data, when asked by the fetch_block_data task
-# Task to process individual transaction data
+
 @celery.task
-def process_transaction_job(transaction_hash, block_number):
-    # Add this call as a try catch, to handle the case when the transaction is not found or updating to monogdb was not successful
-    # if transaction is not found re add this task to the end of the queue
-    try:
-        # Check if the block in not already added to the database
+def process_block_based_transaction_job(transaction_hashes, block_number, start_index=0):
+    # processing all the transactions in the block together, based on the start index
+    # if a transaction fails it's call then dump this job and re add it to the queue from that transaction index
+
+    def processing_individual_transaction(transaction_hash, block_number, index):
+        # Check if the transaction in not already added to the database
         if fetch_transaction(db, transaction_hash) is not None:
             return f"Transaction {block_number}:{transaction_hash} already processed"
 
@@ -86,10 +79,22 @@ def process_transaction_job(transaction_hash, block_number):
         transaction_data = fetch_transaction_data_api(transaction_hash)
         # Insert transaction data into MongoDB
         insert_transaction(db, transaction_data)
-        return f"Transaction {block_number}:{transaction_hash} processed successfully"
-    except ValueError as e:
-        process_transaction_job.retry(countdown=60, exc=e)
-        return
+        return f"Transaction {index} at {block_number} : {transaction_hash} processed successfully"
+
+    for index, transaction_hash in enumerate(transaction_hashes[start_index:]):
+        # process the transaction
+        try :
+            val = processing_individual_transaction(transaction_hash, block_number, index)
+            print(val)
+        except ValueError as e:
+            # retry transactions from the failed transaction's index
+            val = process_block_based_transaction_job.retry(countdown=60, exc=e, kwargs={'transaction_hashes': transaction_hashes, 'block_number': block_number, 'start_index': index})
+            print(val)
+        
+    #  After we exit from the for loop we tell the ingestion that the block has been processed
+    update_latest_ingestion_block(db, block_number)
+    return f"All Transactions processed for block number {block_number}"
+
 
 # Routes
 @app.route('/')
