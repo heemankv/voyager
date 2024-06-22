@@ -1,4 +1,5 @@
 "use client";
+import Copy from '@/components/Copy';
 import TransactionEvents from '@/components/TransactionEvents';
 import TransactionOverView from '@/components/TransactionOverView';
 import { useTransaction } from '@/hooks/useTransaction';
@@ -100,7 +101,7 @@ const IndividualTxnPageView: React.FC<{ transactionDetails: TransactionDetailsDa
         <br />
         <div id="hash">
           <p className="text-gray-400">Hash</p>
-          <p className="text-white">{transactionDetails.transactionHash} Copy</p>
+          <p className="flex text-white">{transactionDetails.transactionHash}  <Copy text={transactionDetails.transactionHash} className={'pl-2'} /></p>
         </div>
         <div id="type-timestamp" className='grid grid-cols-2'>
           <div>

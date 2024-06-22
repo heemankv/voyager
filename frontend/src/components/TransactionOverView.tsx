@@ -3,6 +3,7 @@ import { getCurrentTime, priceCalculator, timeAgo } from '@/utils/helpers'
 import { ActualFee, TransactionDetails, TransactionDeveloperInfo } from '@/utils/types'
 import { BigNumber } from 'ethers';
 import React, { useEffect, useState } from 'react';
+import Copy from '@/components/Copy';
 
 
 export default function TransactionOverView(props : {
@@ -28,7 +29,7 @@ export default function TransactionOverView(props : {
 
     <div id="block-number" className='flex flex-rows gap-4'>
       <p className="text-gray-400">Block Number</p>
-      <p className="text-white">{props.transactionDetails.blockNumber} Copy</p>
+      <p className="text-white">{props.transactionDetails.blockNumber}</p>
     </div>
 
     <div id="block-number" className='flex flex-rows gap-4'>
@@ -37,7 +38,7 @@ export default function TransactionOverView(props : {
     </div>
     <div id="block-number" className='flex flex-rows gap-4'>
       <p className="text-gray-400">Actual Fee</p>
-      <p className="text-white">{Number(Number(calculatedFees)/ (10**18))}</p>
+      <p className="text-white">{Number(Number(calculatedFees)/ (10**18))} USD</p>
     </div>
     <div id="block-number" className='flex flex-rows gap-4'>
       <p className="text-gray-400">Max Fee</p>
