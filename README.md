@@ -1,6 +1,6 @@
 # Hey There ! This is Voyager's Basic Clone !
 Developed by Heemank Verma
-[ 21st, 23rd June 2024 ]
+[ 20th, 22nd June 2024 ]
 
 Key Features : 
 - Backend automatically ingestes new blocks, and is readily fetchable.
