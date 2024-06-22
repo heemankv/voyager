@@ -6,39 +6,38 @@ export enum FilterTypes {
   Invoke = 'invoke',
   L1Handler = 'l1_handler'
 }
-
-export interface TransactionRowProps {
-  status: string;
-  hash: string;
-  type: string;
-  block: string;
-  age: string;
-}
-
 export interface TabNavigationProps {
   selectedTab: FilterTypes;
   onSelectTab: (tab: FilterTypes) => void;
 }
 
 // Transactions objects
-export interface TransactionsResponse {
-  blockNumber : number
+export interface TransactionsMetaResponse {
   endIndex: number
   message: string
   startIndex: number
-  data : TransctionData[]
+  data : TransactionMetaData[]
+}
+
+export interface TransactionMetaData{
+  _id : string
+  transactionHash : string
+  timestamp : number
+  type : string
+  finalityStatus : string
+  blockNumber : number
 }
 
 
 export interface UseTransactionListResult {
   isLoading: boolean;
   error: Error | null;
-  data: TransactionsResponse[] | undefined;
+  data: TransactionsMetaResponse | undefined;
   isFetching: boolean;
 }
 
 
-export interface TransctionData {
+export interface TransactionData {
   accountDeploymentData?: any[]
   calldata: string[]
   feeDataAvailabilityMode?: string

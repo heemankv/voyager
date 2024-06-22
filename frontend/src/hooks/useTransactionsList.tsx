@@ -4,10 +4,10 @@ import {
 import ky from 'ky'
 import { baseURL } from '@/utils/constants';
 import { convertKeysToCamelCase } from '@/utils/helpers';
-import { TransactionsResponse, UseTransactionListResult } from '@/utils/types';
+import { TransactionsMetaResponse, UseTransactionListResult } from '@/utils/types';
 
-export function useTransactionList(index: number = 10): UseTransactionListResult {
-  const { isLoading, error, data, isFetching } = useQuery<TransactionsResponse[]>({
+export function useTransactionList(index: number = 0): UseTransactionListResult {
+  const { isLoading, error, data, isFetching } = useQuery<TransactionsMetaResponse>({
     queryKey: ['repoData'],
     queryFn: () =>
       ky.post(`${baseURL}/transactions-list`, {

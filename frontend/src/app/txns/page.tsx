@@ -1,9 +1,9 @@
 "use client";
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTransactionList } from '@/hooks/useTransactionsList'
 import TransactionRow from '@/components/TransactionRow';
 import TabNavigation from '@/components/TabNavigation';
-import { FilterTypes, TransactionsResponse } from '@/utils/types';
+import { FilterTypes, TransactionMetaData, TransactionsMetaResponse } from '@/utils/types';
 
 export default function TransactionsListWrapper() {
   const {isLoading, error, data, isFetching} = useTransactionList();
@@ -16,7 +16,7 @@ export default function TransactionsListWrapper() {
   if (error || data === undefined ) {
     return <TransactionsListError />;
   }
-  return <TransactionsListView data={data} />;
+  return <TransactionsListView transactionsList={data} />;
 }
 
 function TransactionsListPending() {
@@ -37,17 +37,22 @@ function TransactionsListError() {
   )
 }
 
-const TransactionsListView: React.FC<{ data: TransactionsResponse[] }> = ({ data }) => {
+const TransactionsListView: React.FC<{ transactionsList: TransactionsMetaResponse }> = ({ transactionsList }) => {
   const [selectedTab, setSelectedTab] = useState<FilterTypes>(FilterTypes.All);
 
-  console.log(data, "transactionResponse")
-  const transactions = [
-    { status: 'pending', hash: '0x2efa...5bf3', type: 'INVOKE', block: 'PENDING', age: '4 minutes ago' },
-    { status: 'pending', hash: '0x1b4a...63b3', type: 'INVOKE', block: 'PENDING', age: '4 minutes ago' },
-    { status: 'pending', hash: '0x60eb...dd38', type: 'INVOKE', block: 'PENDING', age: '4 minutes ago' },
-    { status: 'pending', hash: '0x13ac...fe39', type: 'INVOKE', block: 'PENDING', age: '4 minutes ago' },
-    { status: 'pending', hash: '0x5f9b...2768', type: 'INVOKE', block: 'PENDING', age: '4 minutes ago' },
-  ];
+
+  const [showCaseList, setShowCaseList] = useState<TransactionMetaData[]>(transactionsList.data);
+
+  console.log(showCaseList, "showCaseList")
+
+  useEffect(() => {
+    if (selectedTab === FilterTypes.All) {
+      setShowCaseList(transactionsList.data);
+    } else {
+      setShowCaseList(transactionsList.data.filter((txn) => txn.type === selectedTab));
+    }
+  }, [transactionsList, selectedTab]);
+
 
   // TODO: real data fetching logic
   // TODO : Filtering Logic
@@ -70,7 +75,7 @@ const TransactionsListView: React.FC<{ data: TransactionsResponse[] }> = ({ data
           <div className="w-3/12 text-center">BLOCK</div>
           <div className="w-2/12 text-right">AGE</div>
         </div>
-        {transactions.map((txn, index) => (
+        {showCaseList.map((txn, index) => (
           <TransactionRow key={index} {...txn} />
         ))}
       </div>
