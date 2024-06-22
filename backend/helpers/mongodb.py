@@ -69,12 +69,42 @@ def fetch_block(db, block_number):
         db.client = MongoClient(getMongoUri())
 
     block_data = db.blocks.find_one({"_id": block_number})
-    block_data['transactions_length'] = len(block_data['transactions'])
     return block_data
         
+
+def fetch_blocks(db, block_numbers):
+    if not db.client:
+        db.client = MongoClient(getMongoUri())
+
+    blocks_data = {}
+    for block_number in block_numbers:
+        block_data = db.blocks.find_one({"_id": block_number})
+        if block_data:
+            blocks_data[block_number] = block_data
+    return blocks_data
+
+
+
 def fetch_transaction(db, transaction_hash):
     if not db.client:
         db.client = MongoClient(getMongoUri())
 
     transaction_data = db.transactions.find_one({"_id": transaction_hash})
     return transaction_data
+
+
+def fetch_latest_transactions(db, start_index, count):
+    if not db.client:
+        db.client = MongoClient(getMongoUri())
+    
+    needed_fields = {
+        "_id": 0,
+        "block_number": 1,
+        "transaction_hash": 1, 
+        "timestamp": 1,
+        "type" : 1,
+        "finality_Status" : 1
+    }
+
+    latest_transactions_data = db.transactions.find({}, needed_fields).sort('block_number', -1).skip(start_index).limit(count)
+    return list(latest_transactions_data)

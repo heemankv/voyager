@@ -1,9 +1,10 @@
 # app.py
 from celery import Celery
 from pymongo import MongoClient
+from backend.helpers.utils import get_unique_block_numbers
 from helpers.apis import *
 from helpers.getEnv import getCeleryBrokerUrl, getCeleryResultBackend, getJobDelaySeconds
-from helpers.mongodb import connectMongoDB, fetch_block, fetch_transaction, insert_block, insert_transaction, update_latest_ingestion_block, fetch_ingestion_block, fetch_latest_ingested_block
+from helpers.mongodb import connectMongoDB, fetch_block, fetch_blocks, fetch_transaction, insert_block, insert_transaction, update_latest_ingestion_block, fetch_ingestion_block, fetch_latest_ingested_block, fetch_latest_transactions
 import os
 from flask_cors import CORS
 from helpers.mongodb import connectMongoDB
@@ -55,6 +56,7 @@ def fetch_block_data_job(block_number=None):
     # fetch block data for the block number
     block_data = fetch_block_data_api(ingest_for_block_number)
     # insert block data into MongoDB
+    block_information['transactions_length'] = len(block_data['transactions'])
     block_information = {k: block_data[k] for k in set(list(block_data.keys())) - set(['transactions'])}
     insert_block(db, block_information)
     print(f"Block data ingested for block number {ingest_for_block_number}")
@@ -133,62 +135,33 @@ def fetch_block_data(block_number):
 
 @app.route('/api/transactions-list', methods=['POST'])
 def get_transactions():
-    index = request.json['index']
-    print(index, " bhai")
+    index_to_fetch_from = request.json.get('index',0)
+    count = request.json.get('count', 10)
+    print(index_to_fetch_from, count, " bhai")
 
-    # TODO: Reevaluate this logic
+    # TODO: Reevaluated logic here : 
     # User asks for xth - xth + default_list transactions
-    # get blocks list from latest to earlist
-    # each block has list of txns as well as length of all txns
-    # current_length_reached = 0
-    # current_block = latest_block
-    # loop
-    # get block data { only the block number and transactions_length }
-    # if current_length_reached + transactions_length < x
-    # current_length += transactions_length
-    # else if current_length_reached + transactions_length (length) == x (index)
-    # this eg means : I have 20 txns and i am asking for 21st txn
-    # so return default_list many txns from next block
-    # else (when current_length_reached + transactions_length > x):
-    # return default_list many txns from current block starting from x - current_length_reached index to default_list of this block
-    x = index
-    default_list = 10
-    blocks = []
-    current_length_reached = 0
+
+    # get xth to xth + default_list transactions,
+    # get all transactions sorted by ['block_number']
+    latest_transactions = fetch_latest_transactions(db, index_to_fetch_from, count)
+
+    # Get unique block numbers associated with these transactions
+    block_numbers = get_unique_block_numbers(latest_transactions)
+
+    # fetch information for each block from another query to mongodb.
+    blocks_data = fetch_blocks(db, block_numbers)
+
+    # return the transactions and with block information integrated withtin
+
+    for transaction in latest_transactions : 
+        transaction['block_information'] = blocks_data[transaction['block_number']]
     
-    current_block = fetch_latest_ingested_block(db)
-    while True:
-        block_data = fetch_block(db, current_block)
-        blocks.append(block_data)
-        current_length_reached += block_data['transactions_length']
-        if current_length_reached < x:
-            current_block -= 1
-        elif current_length_reached == x:
-            break
-        else:
-            break
-
-    # get the transactions from the current block
-    current_block_data = blocks[-1]
-    transactions = current_block_data['transactions']
-
-    # x = 0
-    # current_length_reached = 217
-    # default_list = 10
-    # start index -> 0, got -217
-    # end index -> 10, got -207
-
-    start_index = min(abs(x - current_length_reached), x)
-    end_index = min(abs(x - current_length_reached) + default_list, x + default_list)
-
-    transactions = transactions[start_index:end_index]
     return jsonify({
         "message": "Transactions fetched successfully",
-        "block_number": current_block_data["_id"],
-        "start_index": start_index,
-        "end_index": end_index,
-        "data": transactions,
+        "data": latest_transactions,
     })
+
 
 # Fetch transaction data for a given transaction hash
 @app.route('/api/fetch-transaction-data/<string:transaction_hash>', methods=['GET'])
@@ -196,6 +169,10 @@ def fetch_transaction_data(transaction_hash):
     txn_data = fetch_transaction(db, transaction_hash)
     if txn_data is None:
         return jsonify({"message": "Transaction not found"})
+    
+    block_data = fetch_block(db, txn_data['block_number'])
+    txn_data['block_information'] = block_data
+
     return jsonify({
         "message" : "Transaction found",
             "data": txn_data    
