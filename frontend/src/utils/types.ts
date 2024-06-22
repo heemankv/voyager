@@ -23,7 +23,7 @@ export interface TransactionDetails {
 
 export interface TransactionDeveloperInfo {
   unixTimestamp : number
-  nonce : string | undefined
+  nonce : string
   position : number | undefined
   version : string
   ExecutionResources : any

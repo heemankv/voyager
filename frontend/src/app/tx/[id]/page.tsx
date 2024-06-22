@@ -95,56 +95,48 @@ const IndividualTxnPageView: React.FC<{ transactionDetails: TransactionDetailsDa
 
   return (
     <div className='rounded-lg'>
-      <div className="bg-bgSecondary text-white">
-      <div className="px-6 py-4">
-        <h2 className="text-2xl font-semibold">Transactions</h2>
-        <br />
-        <div id="hash">
-          <p className="text-gray-400">Hash</p>
-          <p className="flex text-white">{transactionDetails.transactionHash}  <Copy text={transactionDetails.transactionHash} className={'pl-2'} /></p>
-        </div>
-        <div id="type-timestamp" className='grid grid-cols-2'>
-          <div>
-            <p className="text-gray-400">Type</p>
-            <p className="text-white">{transactionDetails.type} Copy</p>
-          </div>
-          <div>
-            <p className="text-gray-400">Type</p>
-            <p className="text-white">{transactionDetails.type} Copy</p>
+      <div className=" text-white p-6 min-h-screen">
+        <div className=" bg-bgSecondary max-w-4xl mx-auto">
+          <h1 className="text-2xl font-bold mb-4">Transaction</h1>
+          <div className="p-6 rounded-lg">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-sm font-medium">HASH</h2>
+                <p className="text-gray-400">0x1522c786f0fded0450c298c45549045b2b905ad7242190e9bca8b19dbf31cc9</p>
+              </div>
+              <div>
+                <h2 className="text-sm font-medium">TIMESTAMP</h2>
+                <p className="text-gray-400">Jun 22 2024 19:40:30</p>
+              </div>
+            </div>
+            <div className="flex justify-between items-center mb-6">
+              <div className="flex items-center">
+                <span className="bg-green-600 text-xs px-2 py-1 rounded mr-2">Received</span>
+                <span className="bg-green-600 text-xs px-2 py-1 rounded">Accepted on L2</span>
+              </div>
+            </div>
+            <div className="flex border-b border-gray-700">
+              <button className="cursor-pointer text-sm  py-2 text-gray-400 hover:text-white"
+                 onClick={(e) =>{
+                  e.preventDefault();
+                  setShowCaseTab(TransactionTabs.Overview)
+                }}
+              >Overview</button>
+                <button  className="cursor-pointer text-sm px-4 py-2 text-gray-400 hover:text-white"
+                 onClick={(e) =>{
+                  e.preventDefault();
+                  setShowCaseTab(TransactionTabs.Events)
+                }}
+              >Events</button>
+            </div>
 
+            {showCaseTab === TransactionTabs.Overview ? <TransactionOverView 
+              transactionDetails = {txnOverViewData.transactionDetails}
+              developerInfo={txnOverViewData.developerInfo}
+            /> : <TransactionEvents transactionEventsData={txnEventData} />}
           </div>
         </div>
-        <div id="status">
-          <p className="text-gray-400">Status</p>
-          <div> Received and Accepted on <span className='text-white'>L2</span></div>
-        </div> 
       </div>
-      <br />
-      <div className="flex justify-left ml-8">
-        <button
-          onClick={() => setShowCaseTab(TransactionTabs.Overview)}
-          className={`px-4 py-2 border border-gray-600 ${
-            showCaseTab === TransactionTabs.Overview ? 'bg-gray-700' : ''
-          }`}
-        >
-          Overview
-        </button>
-        <button
-          onClick={() => setShowCaseTab(TransactionTabs.Events)}
-          className={`px-4 py-2 border border-gray-600 ${
-            showCaseTab === TransactionTabs.Events ? 'bg-gray-700' : ''
-          }`}
-        >
-          Events
-        </button>
-      </div>
-      {showCaseTab === TransactionTabs.Overview ? <TransactionOverView 
-        transactionDetails = {txnOverViewData.transactionDetails}
-        developerInfo={txnOverViewData.developerInfo}
-      /> : <TransactionEvents transactionEventsData={txnEventData} />}
-      
     </div>
-    </div>
-      
   )
 }

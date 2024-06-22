@@ -3,8 +3,6 @@ import { getCurrentTime, priceCalculator, timeAgo } from '@/utils/helpers'
 import { ActualFee, TransactionDetails, TransactionDeveloperInfo } from '@/utils/types'
 import { BigNumber } from 'ethers';
 import React, { useEffect, useState } from 'react';
-import Copy from '@/components/Copy';
-
 
 export default function TransactionOverView(props : {
   transactionDetails : TransactionDetails, 
@@ -23,40 +21,61 @@ export default function TransactionOverView(props : {
   }, [data]);
 
   return (
-    <div className="px-6 py-4">
-    <h2 className="text-2xl font-semibold">Transaction Details</h2>
-    <br />
-
-    <div id="block-number" className='flex flex-rows gap-4'>
-      <p className="text-gray-400">Block Number</p>
-      <p className="text-white">{props.transactionDetails.blockNumber}</p>
+    <div>
+    <div className="border-t border-gray-700 pt-6">
+      <h2 className="text-lg font-bold mb-4">Developer</h2>
+      <div className="mb-4">
+        <h3 className="text-sm font-medium">BLOCK NUMBER:</h3>
+        <p className="text-gray-400">{props.transactionDetails.blockNumber}</p>
+      </div>
+      <div className="mb-4">
+        <h3 className="text-sm font-medium">TIMESTAMP:</h3>
+        <p className="text-gray-400">{timeAgo(getCurrentTime(),props.transactionDetails.timestamp)} ago </p>
+      </div>
+      <div className="mb-4">
+        <h3 className="text-sm font-medium">ACTUAL FEE:</h3>
+        <p className="text-gray-400">{Number(Number(calculatedFees)/ (10**18))} USD</p>
+      </div>
+      <div className="mb-4">
+        <h3 className="text-sm font-medium">MAX FEE:</h3>
+        <p className="text-gray-400">{BigNumber.from(props.transactionDetails.maxFee).toNumber()}</p>
+      </div>
+      <div className="mb-4">
+        <h3 className="text-sm font-medium">GAS CONSUMED:</h3>
+        <p className="text-gray-400">{props.transactionDetails.gasConsumed}</p>
+      </div>
+      <div className="mb-4">
+        <h3 className="text-sm font-medium">SENDER ADDRESS:</h3>
+        <p className="text-gray-400">{props.transactionDetails.senderAddress}</p>
+      </div>
+      </div>
+        <div className="border-t border-gray-700 pt-6">
+        <h2 className="text-lg font-bold mb-4">Developer Info</h2>
+        <div className="mb-4">
+          <h3 className="text-sm font-medium">UNIX TIMESTAMP:</h3>
+          <p className="text-gray-400">{props.developerInfo.unixTimestamp}</p>
+        </div>
+        <div className="mb-4">
+          <h3 className="text-sm font-medium">NONCE:</h3>
+          <p className="text-gray-400">{props.developerInfo.nonce} ago </p>
+        </div>
+        <div className="mb-4">
+          <h3 className="text-sm font-medium">POSITION:</h3>
+          <p className="text-gray-400">{props.developerInfo.position}</p>
+        </div>
+        <div className="mb-4">
+          <h3 className="text-sm font-medium">VERSION:</h3>
+          <p className="text-gray-400">{props.developerInfo.version}</p>
+        </div>
+        <div className="mb-4">
+          <h3 className="text-sm font-medium">EXECUTION RESOURCES</h3>
+          <p className="text-gray-400">{JSON.stringify(props.developerInfo.ExecutionResources)}</p>
+        </div>
+        <div className="mb-4">
+          <h3 className="text-sm font-medium">SIGNATURE(S):</h3>
+          <p className="text-gray-400">{props.developerInfo.Signatures}</p>
+        </div>
+      </div>
     </div>
-
-    <div id="block-number" className='flex flex-rows gap-4'>
-      <p className="text-gray-400">Timestamp</p>
-      <p className="text-white">{timeAgo(getCurrentTime(),props.transactionDetails.timestamp)} ago </p>
-    </div>
-    <div id="block-number" className='flex flex-rows gap-4'>
-      <p className="text-gray-400">Actual Fee</p>
-      <p className="text-white">{Number(Number(calculatedFees)/ (10**18))} USD</p>
-    </div>
-    <div id="block-number" className='flex flex-rows gap-4'>
-      <p className="text-gray-400">Max Fee</p>
-      <p className="text-white">{props.transactionDetails.blockNumber} Copy</p>
-    </div>
-    <div id="block-number" className='flex flex-rows gap-4'>
-      <p className="text-gray-400">Block Number</p>
-      <p className="text-white">{props.transactionDetails.blockNumber} Copy</p>
-    </div>
-    <div id="block-number" className='flex flex-rows gap-4'>
-      <p className="text-gray-400">Block Number</p>
-      <p className="text-white">{props.transactionDetails.blockNumber} Copy</p>
-    </div>
-    <div id="block-number" className='flex flex-rows gap-4'>
-      <p className="text-gray-400">Block Number</p>
-      <p className="text-white">{props.transactionDetails.blockNumber} Copy</p>
-    </div>
-    
-  </div>
   )
 }
