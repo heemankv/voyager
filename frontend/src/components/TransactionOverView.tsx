@@ -10,7 +10,7 @@ export default function TransactionOverView(props : {
   developerInfo : TransactionDeveloperInfo
 }) {
   const {isLoading, error, data, isFetching} = useGetEthprice();
-  const [calculatedFees, setCalculatedFees] = useState<number | string>('0');
+  const [calculatedFees, setCalculatedFees] = useState<{ eth : string , usd : string} | undefined>(undefined);
 
   console.log(calculatedFees,"vsd")
 
@@ -35,11 +35,11 @@ export default function TransactionOverView(props : {
         </div>
         <div className=" flex flex-row gap-44 ">
           <h3 className="text-sm text-gray-400 pb-2 w-3/12">ACTUAL FEE:</h3>
-          <p className="text-sm border-b w-9/12 pb-2 border-gray-600">{Number(Number(calculatedFees)/ (10**18))} USD</p>
+          <p className="text-sm border-b w-9/12 pb-2 border-gray-600">{calculatedFees?.eth} ETH ({calculatedFees?.usd} USD)</p>
         </div>
         <div className=" flex flex-row gap-44 ">
           <h3 className="text-sm text-gray-400 pb-2 w-3/12">MAX FEE:</h3>
-          <p className="text-sm border-b w-9/12 pb-2  border-gray-600">{Number(Number(calculatedFees)/ (10**18))} USD</p>
+          <p className="text-sm border-b w-9/12 pb-2  border-gray-600">{props.transactionDetails.maxFee} ETH</p>
         </div>
         <div className=" flex flex-row gap-44 ">
           <h3 className="text-sm text-gray-400 pb-2 w-3/12">GAS CONSUMED:</h3>

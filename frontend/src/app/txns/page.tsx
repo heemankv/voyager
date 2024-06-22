@@ -36,10 +36,10 @@ export default function TransactionsListWrapper() {
   }, [fetchNextPage, loaderRef, hasNextPage]);
 
   if (status === 'pending') {
-    return <TransactionsListPending />;
+    return <div className='m-24'><TransactionsListPending /></div>;
   }
   if (status === 'error' || error || data === undefined || data.pages.length === 0 ) {
-    return <TransactionsListError />;
+    return <div className='m-24'><TransactionsListError /></div>;
   }
   const transactions = data.pages.flatMap(page => page.data);
   return (
@@ -52,17 +52,17 @@ export default function TransactionsListWrapper() {
 
 function TransactionsListPending() {
   return (
-    <div>
-      <p>Loading...</p>
-    </div>
+  <div className='bg-bgSecondary rounded-lg p-6 text-white'>
+    Loading Transactions Data...
+  </div>
   )
 }
 // TODO: since this is fe level filtering, if we click on any filter that is not present, we'll have no data posssible
 
 function TransactionsListError() {
   return (
-    <div>
-      <p>There was an error</p>
+    <div className='bg-bgSecondary rounded-lg p-6 text-white'>
+        There was an Error.
     </div>
   )
 }

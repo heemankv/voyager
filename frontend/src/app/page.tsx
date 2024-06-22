@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -13,7 +14,9 @@ export default function Home() {
           Voyager 
           </div>
       </div>
-
+      <div className="text-2xl">
+        Created by <Link href={'https://linktr.ee/heemankv'} className="text-blue-400">Heemank Verma</Link>
+      </div>
       <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
         <div />
         <a
@@ -34,10 +37,8 @@ export default function Home() {
 
         <a
         // TODO: write correct transaction id
-          href="/tx/1234"
+          href="/tx/0x3ab15df38c974c42596e1176ab91d7ec952618994f2a596e1e84a8aef564d17"
           className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
         >
           <h2 className="mb-3 text-2xl font-semibold">
             Txn Detail
@@ -46,7 +47,7 @@ export default function Home() {
             </span>
           </h2>
           <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore the page defining a transaction.
+            Explore the transaction details page.
           </p>
         </a>
         <div />

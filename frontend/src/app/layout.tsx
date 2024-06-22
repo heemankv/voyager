@@ -21,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="bg-bgPrimary">
-      <body className="bg-bgPrimary">
+      <body className="">
         <TanstackProvider>
         <div className="flex justify-center">
           <div className="w-[100%] ">{children}</div>

@@ -4,6 +4,7 @@ import TransactionEvents from '@/components/TransactionEvents';
 import TransactionOverView from '@/components/TransactionOverView';
 import { useTransaction } from '@/hooks/useTransaction';
 import { TransactionDetails, TransactionDetailsData, TransactionDeveloperInfo, TransactionEventsData, TransactionTabs } from '@/utils/types';
+import { BigNumber } from 'ethers';
 import { useParams } from 'next/navigation';
 import React, { useState } from 'react'
 
@@ -43,16 +44,16 @@ function IndividualTxnPageWrapper(params : {id : string}) {
 }
 function IndividualTxnPagePending() {
   return (
-    <div>
-      <p>Loading...</p>
+    <div className='bg-bgSecondary rounded-lg p-6 text-white m-24 pt-20 px-12'>
+      Loading Transaction Data...
     </div>
   )
 }
 
 function IndividualTxnPageError() {
   return (
-    <div>
-      <p>There was an error</p>
+    <div className='bg-bgSecondary rounded-lg p-6 text-white m-24 pt-20 px-12'>
+      There Was An Error.
     </div>
   )
 }
@@ -68,10 +69,9 @@ const IndividualTxnPageView: React.FC<{ transactionDetails: TransactionDetailsDa
       blockNumber : transactionDetails.blockNumber,
       timestamp : transactionDetails.blockInformation.timestamp,
       actualFee : transactionDetails.actualFee,
-      maxFee : transactionDetails.transactionMetaInformation.maxFee,
+      maxFee : BigNumber.from(transactionDetails.transactionMetaInformation.maxFee).toNumber() / (10**18),
       senderAddress : transactionDetails.transactionMetaInformation.senderAddress,
-      //TODO: dummy value
-      gasConsumed : undefined,
+      gasConsumed : BigNumber.from(transactionDetails.actualFee.amount).div(BigNumber.from(transactionDetails.blockInformation.l1GasPrice.priceInWei)).toString(),
       classHash : transactionDetails.blockInformation.blockHash
     },
     developerInfo : {

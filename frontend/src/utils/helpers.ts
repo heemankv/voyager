@@ -56,15 +56,20 @@ function timeAgo(now: number, past: number): string {
 
 
 
-function priceCalculator(actualFee: ActualFee, price : number) : string {
+function priceCalculator(actualFee: ActualFee, price : number) : { eth : string , usd : string} {
   if (price === null || price === undefined) {
-    return 'N/A';
+    return {
+      eth: 'N/A',
+      usd: 'N/A'
+    }
   }
-  console.log("vsd 20, 0", actualFee, price)
   const gasPriceWei = BigNumber.from(actualFee.amount)
-  .mul(BigNumber.from(price * 10**4)).div(10**4)
-  .toString()
-  return gasPriceWei;
+  .mul(BigNumber.from(price * 10**4)).div(10**4).toNumber();
+
+  return {
+    eth :  (BigNumber.from(actualFee.amount).toNumber() / (10**18)).toString(),
+    usd :  (gasPriceWei  / (10**18)).toString()
+  }
 }
 
 export {priceCalculator, convertKeysToCamelCase, truncateHash, timeAgo, getCurrentTime};
