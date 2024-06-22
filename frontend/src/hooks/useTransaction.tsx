@@ -2,15 +2,15 @@ import {
   useQuery,
 } from '@tanstack/react-query'
 import ky from 'ky'
-import { baseURL } from '@/app/constants';
+import { baseURL } from '@/constants';
 
 export function useTransaction(transactionHash : string) {
-  const { isPending, error, data, isFetching } = useQuery({
+  const { isLoading, error, data, isFetching } = useQuery({
     queryKey: ['repoData'],
     queryFn: () =>
       ky.get(
         `${baseURL}/fetch-transaction-data/${transactionHash}`
       ).json(),
   })
-  return { isPending, error, data, isFetching };
+  return { isLoading, error, data, isFetching };
 }

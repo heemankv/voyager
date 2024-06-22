@@ -2,10 +2,10 @@ import {
   useQuery,
 } from '@tanstack/react-query'
 import ky from 'ky'
-import { baseURL } from '@/app/constants';
+import { baseURL } from '@/constants';
 
-export function useTransaction(index : number = 0) {
-  const { isPending, error, data, isFetching } = useQuery({
+export function useTransactionList(index : number = 10) {
+  const { isLoading, error, data, isFetching } = useQuery({
     queryKey: ['repoData'],
     queryFn: () =>
       ky.post(
@@ -17,5 +17,5 @@ export function useTransaction(index : number = 0) {
         }
       ).json(),
   })
-  return { isPending, error, data, isFetching };
+  return { isLoading, error, data, isFetching };
 }
