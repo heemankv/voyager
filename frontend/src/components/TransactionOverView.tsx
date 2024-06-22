@@ -1,11 +1,26 @@
-import { getCurrentTime, timeAgo } from '@/utils/helpers'
-import { TransactionDetails, TransactionDeveloperInfo } from '@/utils/types'
-import React from 'react'
+import { useGetEthprice } from '@/hooks/useGetEthPrice';
+import { getCurrentTime, priceCalculator, timeAgo } from '@/utils/helpers'
+import { ActualFee, TransactionDetails, TransactionDeveloperInfo } from '@/utils/types'
+import { BigNumber } from 'ethers';
+import React, { useEffect, useState } from 'react';
+
 
 export default function TransactionOverView(props : {
   transactionDetails : TransactionDetails, 
   developerInfo : TransactionDeveloperInfo
 }) {
+  const {isLoading, error, data, isFetching} = useGetEthprice();
+  const [calculatedFees, setCalculatedFees] = useState<number | string>('0');
+
+  console.log(calculatedFees,"vsd")
+
+  useEffect(()=>{
+    if(data){
+      const value = priceCalculator(props.transactionDetails.actualFee, data); 
+     setCalculatedFees(value);
+    }
+  }, [data]);
+
   return (
     <div className="px-6 py-4">
     <h2 className="text-2xl font-semibold">Transaction Details</h2>
@@ -22,7 +37,7 @@ export default function TransactionOverView(props : {
     </div>
     <div id="block-number" className='flex flex-rows gap-4'>
       <p className="text-gray-400">Actual Fee</p>
-      <p className="text-white">{props.transactionDetails.blockNumber} Copy</p>
+      <p className="text-white">{Number(Number(calculatedFees)/ (10**18))}</p>
     </div>
     <div id="block-number" className='flex flex-rows gap-4'>
       <p className="text-gray-400">Max Fee</p>

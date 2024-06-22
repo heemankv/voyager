@@ -1,3 +1,6 @@
+import { BigNumber } from "ethers";
+import { ActualFee } from "./types";
+
 function toCamelCase(snakeStr: string): string {
   return snakeStr.replace(/(_\w)/g, matches => matches[1].toUpperCase());
 }
@@ -53,4 +56,15 @@ function timeAgo(now: number, past: number): string {
 
 
 
-export {convertKeysToCamelCase, truncateHash, timeAgo, getCurrentTime};
+function priceCalculator(actualFee: ActualFee, price : number) : string {
+  if (price === null || price === undefined) {
+    return 'N/A';
+  }
+  console.log("vsd 20, 0", actualFee, price)
+  const gasPriceWei = BigNumber.from(actualFee.amount)
+  .mul(BigNumber.from(price * 10**4)).div(10**4)
+  .toString()
+  return gasPriceWei;
+}
+
+export {priceCalculator, convertKeysToCamelCase, truncateHash, timeAgo, getCurrentTime};
