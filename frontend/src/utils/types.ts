@@ -26,7 +26,13 @@ export interface TransactionDeveloperInfo {
   nonce : string
   position : number | undefined
   version : string
-  ExecutionResources : any
+  ExecutionResources : {
+    bitwiseBuiltinApplications? : number
+    ecOpBuiltinApplications? : number
+    pedersenBuiltinApplications? : number
+    rangeCheckBuiltinApplications? : number
+    steps? : number
+  }
   Signatures : String[]
 }
 

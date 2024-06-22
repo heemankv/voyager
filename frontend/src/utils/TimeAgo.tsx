@@ -14,6 +14,6 @@ export default function TimeAgo(props: { unixTime : number}) {
   ,[]);
   
   return (
-    <div>{timeAgo(currentTime, props.unixTime )} ago</div>
+    <div>{timeAgo(currentTime, props.unixTime)} ago</div>
   )
 }
