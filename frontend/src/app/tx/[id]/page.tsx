@@ -69,7 +69,7 @@ const IndividualTxnPageView: React.FC<{ transactionDetails: TransactionDetailsDa
       blockNumber : transactionDetails.blockNumber,
       timestamp : transactionDetails.blockInformation.timestamp,
       actualFee : transactionDetails.actualFee,
-      maxFee : BigNumber.from(transactionDetails.transactionMetaInformation.maxFee).toNumber() / (10**18),
+      maxFee : BigNumber.from(transactionDetails.transactionMetaInformation.maxFee || 0).toNumber() / (10**18),
       senderAddress : transactionDetails.transactionMetaInformation.senderAddress,
       gasConsumed : BigNumber.from(transactionDetails.actualFee.amount).div(BigNumber.from(transactionDetails.blockInformation.l1GasPrice.priceInWei)).toString(),
       classHash : transactionDetails.blockInformation.blockHash

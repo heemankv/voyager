@@ -82,7 +82,7 @@ export default function TransactionOverView(props : {
         <div className=" flex flex-row gap-44">
           <h3 className="text-sm text-gray-400 pb-2 w-3/12">SIGNATURE(S):</h3>
           <div className='flex flex-col w-9/12'>
-          {props.developerInfo.Signatures.map((val, idx) => {
+          {props.developerInfo.Signatures?.map((val, idx) => {
             return <p key={idx} className="text-sm text-yellow-500 border-b  pb-2 border-gray-600">{val}</p>
           })}   
           </div>
