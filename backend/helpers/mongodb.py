@@ -98,12 +98,12 @@ def fetch_latest_transactions(db, start_index, count):
         db.client = MongoClient(getMongoUri())
     
     needed_fields = {
-        "_id": 0,
+        "_id": 1,
         "block_number": 1,
         "transaction_hash": 1, 
         "timestamp": 1,
         "type" : 1,
-        "finality_Status" : 1
+        "finality_status" : 1
     }
 
     latest_transactions_data = db.transactions.find({}, needed_fields).sort('block_number', -1).skip(start_index).limit(count)

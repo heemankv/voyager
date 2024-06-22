@@ -1,7 +1,7 @@
 # app.py
 from celery import Celery
 from pymongo import MongoClient
-from backend.helpers.utils import get_unique_block_numbers
+from helpers.utils import get_unique_block_numbers
 from helpers.apis import *
 from helpers.getEnv import getCeleryBrokerUrl, getCeleryResultBackend, getJobDelaySeconds
 from helpers.mongodb import connectMongoDB, fetch_block, fetch_blocks, fetch_transaction, insert_block, insert_transaction, update_latest_ingestion_block, fetch_ingestion_block, fetch_latest_ingested_block, fetch_latest_transactions
@@ -56,7 +56,7 @@ def fetch_block_data_job(block_number=None):
     # fetch block data for the block number
     block_data = fetch_block_data_api(ingest_for_block_number)
     # insert block data into MongoDB
-    block_information['transactions_length'] = len(block_data['transactions'])
+    block_data['transactions_length'] = len(block_data['transactions'])
     block_information = {k: block_data[k] for k in set(list(block_data.keys())) - set(['transactions'])}
     insert_block(db, block_information)
     print(f"Block data ingested for block number {ingest_for_block_number}")
@@ -155,11 +155,13 @@ def get_transactions():
     # return the transactions and with block information integrated withtin
 
     for transaction in latest_transactions : 
-        transaction['block_information'] = blocks_data[transaction['block_number']]
+        transaction['timestamp'] = blocks_data[transaction['block_number']]['timestamp']
     
     return jsonify({
         "message": "Transactions fetched successfully",
         "data": latest_transactions,
+        "start_index" : index_to_fetch_from,
+        "end_index" : index_to_fetch_from + count,
     })
 
 
