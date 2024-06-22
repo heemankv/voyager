@@ -2,7 +2,7 @@ import {
   useQuery,
 } from '@tanstack/react-query'
 import ky from 'ky'
-import { baseURL } from '@/constants';
+import { baseURL } from '@/utils/constants';
 
 export function useTransaction(transactionHash : string) {
   const { isLoading, error, data, isFetching } = useQuery({

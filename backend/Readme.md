@@ -20,3 +20,7 @@ There are few calls here :
 
 
 ![alt text](image.png)
+
+
+
+# How can I fetch all the information about a transaction from blockinfo as well ?

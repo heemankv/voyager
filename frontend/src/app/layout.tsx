@@ -20,10 +20,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="en" className="bg-bgPrimary">
+      <body className="">
         <TanstackProvider>
-        <div>{children}</div>
+        <div className="flex justify-center mt-32">
+          <div className="w-[95%] rounded-lg"   >{children}</div>
+        </div>
         </TanstackProvider>
         </body>
     </html>

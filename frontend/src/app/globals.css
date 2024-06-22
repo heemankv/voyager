@@ -31,3 +31,11 @@ body {
     text-wrap: balance;
   }
 }
+
+@layer base {
+  :root {
+    --color-bgPrimary : rgb(18,18,18);
+    --color-bgSecondary : rgb(27, 27, 27);
+    --color-green-highlight : rgb(130, 244, 187);
+  }
+}
