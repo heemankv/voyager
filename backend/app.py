@@ -1,14 +1,18 @@
 # app.py
-from flask import Flask, jsonify
 from celery import Celery
 from pymongo import MongoClient
 from helpers.apis import *
 from helpers.getEnv import getCeleryBrokerUrl, getCeleryResultBackend, getJobDelaySeconds
 from helpers.mongodb import connectMongoDB, fetch_block, fetch_transaction, insert_block, insert_transaction, update_latest_ingestion_block, fetch_ingestion_block, fetch_latest_ingested_block
 import os
+from flask_cors import CORS
 from helpers.mongodb import connectMongoDB
-
+from flask import Flask, request, jsonify 
 app = Flask(__name__)
+
+# TODO: Allow all origins
+CORS(app)
+
 app.config['CELERY_BROKER_URL'] = getCeleryBrokerUrl()
 app.config['CELERY_RESULT_BACKEND'] = getCeleryResultBackend()
 app.config['CELERY_TIMEZONE'] = 'UTC'
@@ -115,8 +119,11 @@ def fetch_block_data(block_number):
     })
 
 
-@app.route('/api/transactions-list/<int:index>', methods=['GET'])
-def get_transactions(index):
+@app.route('/api/transactions-list', methods=['POST'])
+def get_transactions():
+    index = request.json['index']
+    print(index, " bhai")
+
     # TODO: Reevaluate this logic
     # User asks for xth - xth + default_list transactions
     # get blocks list from latest to earlist
