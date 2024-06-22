@@ -17,7 +17,6 @@ export interface TransactionDetails {
   actualFee : ActualFee
   maxFee : any
   gasConsumed : any
-  tokensTransferred : any
   senderAddress : String
   classHash : String
 }
@@ -27,7 +26,6 @@ export interface TransactionDeveloperInfo {
   nonce : string | undefined
   position : number | undefined
   version : string
-  l1TxnHash : String
   ExecutionResources : any
   Signatures : String[]
 }
@@ -120,6 +118,7 @@ export interface TransactionDetailsData {
   blockHash: string
   blockInformation: BlockInformation
   blockNumber: number
+  transactionIndex : number
   events: Event[]
   executionResources: ExecutionResources
   executionStatus: string
@@ -184,4 +183,14 @@ export interface TransactionMetaInformation {
   transactionHash: string
   type: string
   version: string
+}
+
+
+
+// Transaction Events Data : 
+
+export interface TransactionEventsData {
+  id : string
+  blockNumber : number
+  timestamp : number
 }

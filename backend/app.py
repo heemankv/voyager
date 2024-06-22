@@ -93,6 +93,7 @@ def process_block_based_transaction_job(transaction_hashes, block_data, start_in
         # Fetch transaction data
         transaction_data = fetch_transaction_data_api(transaction_hash)
         transaction_data['block_number'] = block_number
+        transaction_data['transaction_index'] = index
         transaction_data['transaction_metaInformation'] = transaction_metaInformation
         # Insert transaction data into MongoDB
         insert_transaction(db, transaction_data)

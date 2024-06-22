@@ -2,7 +2,7 @@
 import TransactionEvents from '@/components/TransactionEvents';
 import TransactionOverView from '@/components/TransactionOverView';
 import { useTransaction } from '@/hooks/useTransaction';
-import { TransactionDetails, TransactionDetailsData, TransactionDeveloperInfo, TransactionTabs } from '@/utils/types';
+import { TransactionDetails, TransactionDetailsData, TransactionDeveloperInfo, TransactionEventsData, TransactionTabs } from '@/utils/types';
 import { useParams } from 'next/navigation';
 import React, { useState } from 'react'
 
@@ -71,7 +71,6 @@ const IndividualTxnPageView: React.FC<{ transactionDetails: TransactionDetailsDa
       senderAddress : transactionDetails.transactionMetaInformation.senderAddress,
       //TODO: dummy value
       gasConsumed : undefined,
-      tokensTransferred : undefined,
       classHash : transactionDetails.blockInformation.blockHash
     },
     developerInfo : {
@@ -82,9 +81,16 @@ const IndividualTxnPageView: React.FC<{ transactionDetails: TransactionDetailsDa
       Signatures : transactionDetails.transactionMetaInformation.signature,
       //TODO: dummy value
       position : 325,
-      l1TxnHash : transactionDetails.blockInformation.parentHash
     }
   }
+
+  const txnEventData : TransactionEventsData[] = transactionDetails.events.map((event, index)=>{
+    return {
+      id : `${transactionDetails.blockNumber}_${transactionDetails.transactionIndex}_${index}`,
+      blockNumber : transactionDetails.blockNumber,
+      timestamp : transactionDetails.blockInformation.timestamp
+    }
+  })
 
   return (
     <div className='rounded-lg'>
@@ -134,7 +140,7 @@ const IndividualTxnPageView: React.FC<{ transactionDetails: TransactionDetailsDa
       {showCaseTab === TransactionTabs.Overview ? <TransactionOverView 
         transactionDetails = {txnOverViewData.transactionDetails}
         developerInfo={txnOverViewData.developerInfo}
-      /> : <TransactionEvents data={data} />}
+      /> : <TransactionEvents transactionEventsData={txnEventData} />}
       
     </div>
     </div>
