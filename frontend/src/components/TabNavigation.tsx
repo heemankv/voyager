@@ -6,7 +6,7 @@ const TabNavigation: React.FC<TabNavigationProps> = ({ selectedTab, onSelectTab 
   const tabs = Object.values(FilterTypes);
 
   return (
-    <div className="flex border-gray-700 bg-bgSecondary text-white">
+    <div className="flex border-gray-700 text-white">
       {tabs.map((tab) => (
         <button
           key={tab}
@@ -15,7 +15,7 @@ const TabNavigation: React.FC<TabNavigationProps> = ({ selectedTab, onSelectTab 
             selectedTab === tab ? 'bg-gray-700' : ''
           }`}
         >
-          {tab}
+          {tab.toLowerCase()}
         </button>
       ))}
     </div>

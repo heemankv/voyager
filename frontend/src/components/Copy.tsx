@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import React, { useState } from 'react'
 
-export default function Copy(props: {text:string, className: string}) {
+export default function Copy(props: {text:string, className?: string}) {
   const [copySuccess, setCopySuccess] = useState('');
 
   const copyToClipboard = async () => {
@@ -14,7 +14,7 @@ export default function Copy(props: {text:string, className: string}) {
   };
 
   return (
-    <>
+    <button>
       <Image 
        className={props.className} 
        src={'/copy_to_clipboard.svg'}
@@ -24,6 +24,6 @@ export default function Copy(props: {text:string, className: string}) {
        onClick={copyToClipboard}
        alt={"Copy"}
        />
-    </>
+    </button>
   )
 }

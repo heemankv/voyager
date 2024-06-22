@@ -1,10 +1,10 @@
 export enum FilterTypes {
-  All = 'All',
+  All = 'ALL',
   Declare = 'DECLARE',
   Deploy = 'DEPLOY',
-  DeployAccount = 'deploy_account',
+  DeployAccount = 'DEPLOY_ACCOUNT',
   Invoke = 'INVOKE',
-  L1Handler = 'l1_handler'
+  L1Handler = 'L1_HANDLER'
 }
 export enum TransactionTabs {
   Overview = 'Overview',

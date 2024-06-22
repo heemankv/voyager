@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTransactionList } from '@/hooks/useTransactionsList'
 import TransactionRow from '@/components/TransactionRow';
 import TabNavigation from '@/components/TabNavigation';
-import { FilterTypes, TransactionMetaData, TransactionsMetaResponse } from '@/utils/types';
+import { FilterTypes, TransactionMetaData } from '@/utils/types';
 
 export default function TransactionsListWrapper() {
   const {
@@ -19,9 +19,7 @@ export default function TransactionsListWrapper() {
   const loaderRef = useRef(null);
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
-      console.log(entries[0], "SDvsdds")
       if (entries[0].isIntersecting) {
-        console.log("sdbsvdkjbsvdbk")
         fetchNextPage()
       }
     }, { threshold: 1.0 });
@@ -86,17 +84,17 @@ const TransactionsListView: React.FC<{ transactionsList: TransactionMetaData[] }
   }
   else{
     return (
-      <div className='rounded-lg bg-bgSecondary text-white'>
-        <div className="px-6 py-4">
+      <div className='bg-bgSecondary rounded-lg p-6 text-white'>
+        <div className="p-6">
           <h2 className="text-2xl font-semibold">Transactions</h2>
           <p className="text-gray-400">A list of transactions on Starknet</p>
         </div>
-        <div className='w-[90%]'>
+        <div className='w-[90%] ml-6'>
           <TabNavigation selectedTab={selectedTab} onSelectTab={setSelectedTab} />
         </div>
         <div className="px-6 py-4">
-          <div className="flex items-center py-2 border-b border-gray-700">
-            <div className="w-1/12 text-center">STATUS</div>
+          <div className="flex items-center py-2 border-b border-t border-gray-700">
+            <div className="w-1/12 text-left">STATUS</div>
             <div className="w-3/12">HASH</div>
             <div className="w-2/12 text-center">TYPE</div>
             <div className="w-3/12 text-center">BLOCK</div>
