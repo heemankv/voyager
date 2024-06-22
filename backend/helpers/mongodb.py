@@ -22,6 +22,7 @@ def insert_block(db, block_data):
     if not db.client:
         db.client = MongoClient(getMongoUri())
     block_id = block_data['block_number']
+    # block_data['transactions_length'] = len(block_data['transactions'])
     db.blocks.update_one({"_id": block_id}, {"$set": block_data}, upsert=True)
 
 # Function to insert a transaction into MongoDB
@@ -47,6 +48,15 @@ def fetch_ingestion_block(db):
     return ingestion_block.get("block_number", 0) if ingestion_block else None
 
 
+def fetch_latest_ingested_block(db):
+    if not db.client:
+        db.client = MongoClient(getMongoUri())
+    
+    # get the most recently added block
+    latest_block = db.blocks.find_one(sort=[("_id", -1)])
+    return latest_block.get("_id", 0) if latest_block else None
+
+
 def update_latest_ingestion_block(db, block_number):
     if not db.client:
         db.client = MongoClient(getMongoUri())
@@ -61,9 +71,40 @@ def fetch_block(db, block_number):
     block_data = db.blocks.find_one({"_id": block_number})
     return block_data
         
+
+def fetch_blocks(db, block_numbers):
+    if not db.client:
+        db.client = MongoClient(getMongoUri())
+
+    blocks_data = {}
+    for block_number in block_numbers:
+        block_data = db.blocks.find_one({"_id": block_number})
+        if block_data:
+            blocks_data[block_number] = block_data
+    return blocks_data
+
+
+
 def fetch_transaction(db, transaction_hash):
     if not db.client:
         db.client = MongoClient(getMongoUri())
 
     transaction_data = db.transactions.find_one({"_id": transaction_hash})
     return transaction_data
+
+
+def fetch_latest_transactions(db, start_index, count):
+    if not db.client:
+        db.client = MongoClient(getMongoUri())
+    
+    needed_fields = {
+        "_id": 1,
+        "block_number": 1,
+        "transaction_hash": 1, 
+        "timestamp": 1,
+        "type" : 1,
+        "finality_status" : 1
+    }
+
+    latest_transactions_data = db.transactions.find({}, needed_fields).sort('block_number', -1).skip(start_index).limit(count)
+    return list(latest_transactions_data)
