@@ -1,9 +1,9 @@
 export enum FilterTypes {
   All = 'All',
-  Declare = 'declare',
-  Deploy = 'deploy',
+  Declare = 'DECLARE',
+  Deploy = 'DEPLOY',
   DeployAccount = 'deploy_account',
-  Invoke = 'invoke',
+  Invoke = 'INVOKE',
   L1Handler = 'l1_handler'
 }
 export enum TransactionTabs {

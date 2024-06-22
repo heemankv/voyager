@@ -16,6 +16,26 @@ export default function TransactionsListWrapper() {
     data,
     isFetching
   } = useTransactionList();
+  const loaderRef = useRef(null);
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      console.log(entries[0], "SDvsdds")
+      if (entries[0].isIntersecting) {
+        console.log("sdbsvdkjbsvdbk")
+        fetchNextPage()
+      }
+    }, { threshold: 1.0 });
+
+    if (loaderRef.current) {
+      observer.observe(loaderRef.current);
+    }
+
+    return () => {
+      if (loaderRef.current) {
+        observer.unobserve(loaderRef.current);
+      }
+    };
+  }, [fetchNextPage, loaderRef, hasNextPage]);
 
   if (status === 'pending') {
     return <TransactionsListPending />;
@@ -27,16 +47,7 @@ export default function TransactionsListWrapper() {
   return (
     <div className='m-24'>
       <TransactionsListView transactionsList={transactions} />
-      <button
-          onClick={() => fetchNextPage()}
-          disabled={!hasNextPage || isFetchingNextPage}
-        >
-          {isFetchingNextPage
-            ? 'Loading more...'
-            : hasNextPage
-              ? 'Load More'
-              : 'Nothing more to load'}
-        </button>
+      <div ref={loaderRef} style={{ height: '20px' }}></div>
     </div>
   );
 }
@@ -61,8 +72,6 @@ function TransactionsListError() {
 const TransactionsListView: React.FC<{ transactionsList: TransactionMetaData[] }> = ({ transactionsList }) => {
   const [selectedTab, setSelectedTab] = useState<FilterTypes>(FilterTypes.All);
   const [showCaseList, setShowCaseList] = useState<TransactionMetaData[]>(transactionsList);
-
-  console.log(showCaseList, transactionsList, "showCaseList")
 
   useEffect(() => {
     if (selectedTab === FilterTypes.All) {
