@@ -55,7 +55,8 @@ def fetch_block_data_job(block_number=None):
     # fetch block data for the block number
     block_data = fetch_block_data_api(ingest_for_block_number)
     # insert block data into MongoDB
-    insert_block(db, block_data)
+    block_information = {k: block_data[k] for k in set(list(block_data.keys())) - set(['transactions'])}
+    insert_block(db, block_information)
     print(f"Block data ingested for block number {ingest_for_block_number}")
     # send for all the transactions to be processed  using process_block_based_transaction_job
     # create a list of transaction hashes
@@ -64,34 +65,45 @@ def fetch_block_data_job(block_number=None):
 
     print(f"Processing {len(transaction_hashes)} transactions for {block_number} in {delay_seconds} seconds")
     # Calls for all the transactions to be processed together
-    process_block_based_transaction_job.apply_async((transaction_hashes, ingest_for_block_number,), countdown=delay_seconds)
+    process_block_based_transaction_job.apply_async((transaction_hashes, block_data,), countdown=delay_seconds)
       
     return f"Block data fetched for block number {ingest_for_block_number}"
 
-
 @celery.task
-def process_block_based_transaction_job(transaction_hashes, block_number, start_index=0):
+def process_block_based_transaction_job(transaction_hashes, block_data, start_index=0):
     # processing all the transactions in the block together, based on the start index
     # if a transaction fails it's call then dump this job and re add it to the queue from that transaction index
 
-    def processing_individual_transaction(transaction_hash, block_number, index):
+    block_number = block_data['block_number']
+
+    # TODO: is there a better approach : Array iteration of about 447 indexes
+    def get_transaction_information(block_data, transaction_hash):
+        for transaction in block_data['transactions']:
+            if transaction['transaction_hash'] == transaction_hash:
+                return transaction
+        return None
+
+    def processing_individual_transaction(transaction_hash, block_number, index, transaction_metaInformation):
         # Check if the transaction in not already added to the database
         if fetch_transaction(db, transaction_hash) is not None:
             return f"Transaction {block_number}:{transaction_hash} already processed"
 
         # Fetch transaction data
         transaction_data = fetch_transaction_data_api(transaction_hash)
+        transaction_data['block_number'] = block_number
+        transaction_data['transaction_metaInformation'] = transaction_metaInformation
         # Insert transaction data into MongoDB
         insert_transaction(db, transaction_data)
         return f"Transaction {index} at {block_number} : {transaction_hash} processed successfully"
 
     for index, transaction_hash in enumerate(transaction_hashes[start_index:]):
+        transaction_metaInformation = get_transaction_information(block_data, transaction_hash) 
         # process the transaction
         try :
-            val = processing_individual_transaction(transaction_hash, block_number, index)
+            val = processing_individual_transaction(transaction_hash, block_number, index, transaction_metaInformation)
             print(val)
         except ValueError as e:
-            # retry transactions from the failed transaction's index
+            # retry transactions from the failed transaction's indexbit
             val = process_block_based_transaction_job.retry(countdown=60, exc=e, kwargs={'transaction_hashes': transaction_hashes, 'block_number': block_number, 'start_index': index})
             print(val)
         
