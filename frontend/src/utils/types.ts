@@ -38,9 +38,6 @@ export interface TabNavigationProps {
 
 // Transactions objects
 export interface TransactionsMetaResponse {
-  endIndex: number
-  message: string
-  startIndex: number
   data : TransactionMetaData[]
 }
 

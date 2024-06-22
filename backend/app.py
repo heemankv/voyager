@@ -134,12 +134,12 @@ def fetch_block_data(block_number):
     })
 
 
-@app.route('/api/transactions-list', methods=['POST'])
+@app.route('/api/transactions-list', methods=['GET'])
 def get_transactions():
-    index_to_fetch_from = request.json.get('index',0)
-    count = request.json.get('count', 10)
-    print(index_to_fetch_from, count, " bhai")
-
+    index = request.args.get('cursor')
+    print("sdjknkjn", index)
+    index_to_fetch_from = int(index)
+    count = 10
     # TODO: Reevaluated logic here : 
     # User asks for xth - xth + default_list transactions
 
@@ -161,6 +161,7 @@ def get_transactions():
     return jsonify({
         "message": "Transactions fetched successfully",
         "data": latest_transactions,
+        "nextCursor" : index_to_fetch_from + count + 1,
         "start_index" : index_to_fetch_from,
         "end_index" : index_to_fetch_from + count,
     })
